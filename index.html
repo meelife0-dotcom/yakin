@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F4C45">
+<link rel="manifest" href="manifest.json">
+<title>وِرد ورش</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#0F4C45;--bg:#F3F5F4;--ink:#14201E;--mute:#5B6B68;--line:#E1E7E5;--card:#fff;--soon:#8CC3BA;--late:#F0C75E}
+@media(prefers-color-scheme:dark){:root{--g:#7FC4B9;--bg:#0E1615;--ink:#E8EFED;--mute:#9DB0AC;--line:#24332F;--card:#16221F;--soon:#2F6F66;--late:#B8892B}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif;min-height:100vh}
+main{max-width:480px;margin:0 auto;padding:calc(24px + env(safe-area-inset-top)) 20px 96px}
+h1{margin:0;font-size:26px}p.s{margin:4px 0 16px;color:var(--mute);font-size:14px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.l{font-size:13px;font-weight:700;color:var(--g)}.b{font-size:20px;font-weight:700;margin-top:6px}.m{font-size:14px;color:var(--mute);margin-top:4px}
+button,input,select{font-family:inherit;font-size:16px}
+.btn{width:100%;min-height:48px;margin-top:12px;border-radius:12px;font-weight:700;cursor:pointer;background:var(--g);color:var(--bg);border:1.5px solid var(--g)}
+.btn.o{background:transparent;color:var(--g)}.btn:focus-visible,nav button:focus-visible{outline:3px solid var(--late);outline-offset:2px}
+.btn.done{background:transparent;color:var(--g)}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(10px + env(safe-area-inset-bottom))}
+nav button{flex:1;min-height:48px;background:none;border:none;color:var(--mute);font-size:14px;cursor:pointer}nav button.a{color:var(--g);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}.grid div{height:28px;border-radius:6px;font-size:11px;display:flex;align-items:center;justify-content:center;background:var(--late);color:#14201E}
+.grid .f{background:var(--g);color:var(--bg)}.grid .s{background:var(--soon)}
+.lg{display:flex;gap:16px;font-size:13px;color:var(--mute);margin-top:14px}.lg i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-inline-end:6px}
+.r{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+input,select{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:96px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<nav id="nav"></nav>
+<script>
+const K='wird_warsh_v1',T=()=>new Date().toLocaleDateString('en-CA'),D=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+let S=JSON.parse(localStorage.getItem(K)||'null')||{thumn:1,ws:T(),rec:{},last:{},time:'06:00',nt:''},tab='t';
+const save=()=>localStorage.setItem(K,JSON.stringify(S)),hz=n=>Math.ceil(n/8),tn=n=>(n-1)%8+1;
+const nextRev=()=>{let b=1,v=1e15;for(let h=1;h<=60;h++){const d=S.last[h]?+new Date(S.last[h]):0;if(d<v){v=d;b=h}}return b};
+const ago=h=>S.last[h]?D(S.last[h],T()):null;
+const streak=()=>{let n=0,d=new Date();if(!S.rec[T()])d.setDate(d.getDate()-1);while(S.rec[d.toLocaleDateString('en-CA')]){n++;d.setDate(d.getDate()-1)}return n};
+const card=x=>`<div class="c">${x}</div>`;
+function today(){
+ const day=Math.min(D(S.ws,T())+1,8),h=nextRev(),a=ago(h),dn=!!S.rec[T()],rv=S.last[h]===T();
+ let w='';
+ if(day>7)w=card(`<div class="b">هل قرأت هذا الثمن قراءة متقنة؟</div><div class="m">كن صادقا مع نفسك. الانتقال المبكر يُضعف ما بنيته.</div><button class="btn" onclick="wk(1)">نعم، الانتقال إلى الثمن التالي</button><button class="btn o" onclick="wk(0)">ليس بعد، البقاء على هذا الثمن</button>`);
+ return `<h1>اليوم</h1><p class="s">وِردك خطوة بخطوة</p>${w}`+
+ card(`<div class="l">القراءة</div><div class="b">الثمن ${tn(S.thumn)} · الحزب ${hz(S.thumn)}</div><div class="m">اليوم ${Math.min(day,7)} من 7 في هذا الثمن</div><button class="btn ${dn?'done':''}" onclick="tg()">${dn?'✓ تمت القراءة':'تمت القراءة'}</button>`)+
+ card(`<div class="l">المراجعة</div><div class="b">الحزب ${h}</div><div class="m">${a===null?'لم يُراجع بعد':a===0?'رُوجع اليوم':'آخر مراجعة قبل '+a+' يوما'}</div><button class="btn ${rv?'done':'o'}" onclick="rv(${h})">${rv?'✓ تمت المراجعة':'تمت المراجعة'}</button>`)+
+ card(`<div class="b">${streak()} أيام متتالية</div><div class="m">التذكير على الساعة ${S.time}</div>`)}
+function prog(){let g='';for(let h=1;h<=60;h++){const a=ago(h),c=a!==null&&a<=14?'f':a!==null&&a<=30?'s':'';g+=`<div class="${c}" title="${a===null?'لم يُراجع':a+' يوما'}">${h}</div>`}
+ return `<h1>التقدم</h1><p class="s">60 حزبا، حسب حداثة المراجعة</p>`+card(`<div class="grid">${g}</div><div class="lg"><span><i style="background:var(--g)"></i>حديث</span><span><i style="background:var(--soon)"></i>يقترب موعده</span><span><i style="background:var(--late)"></i>متأخر</span></div>`)+
+ card(`<div class="l">الثمن الحالي</div><div class="b">${S.thumn} من 480</div>`)}
+function plan(){return `<h1>طريقتك</h1><p class="s">ثمن واحد في الأسبوع، والانتقال عند إتقان القراءة</p>`+card(
+ `<div class="r"><span>الحزب الحالي</span><input id="h" type="number" min="1" max="60" value="${hz(S.thumn)}"></div>
+ <div class="r"><span>الثمن (1 إلى 8)</span><input id="t" type="number" min="1" max="8" value="${tn(S.thumn)}"></div>
+ <div class="r"><span>وقت التذكير</span><input id="tm" type="time" value="${S.time}"></div>
+ <button class="btn" onclick="sp()">حفظ الخطة</button><button class="btn o" onclick="nf()">تفعيل التذكيرات</button><div class="m" id="nm"></div>`)+
+ card(`<div class="m">التذكيرات تعمل حاليا عندما يكون التطبيق مفتوحا. التذكير في الخلفية يحتاج خطوة إضافية (انظر README).</div><button class="btn o" onclick="rs()">مسح كل البيانات</button>`)}
+function render(){document.getElementById('app').innerHTML={t:today,p:prog,l:plan}[tab]();
+ document.getElementById('nav').innerHTML=[['t','اليوم'],['p','التقدم'],['l','الخطة']].map(([k,n])=>`<button class="${k==tab?'a':''}" onclick="tab='${k}';render()">${n}</button>`).join('')}
+const tg=()=>{S.rec[T()]=!S.rec[T()];save();render()},rv=h=>{S.last[h]=S.last[h]===T()?null:T();save();render()};
+const wk=y=>{if(y&&S.thumn<480)S.thumn++;S.ws=T();save();render()};
+const sp=()=>{const h=Math.min(60,Math.max(1,+document.getElementById('h').value||1)),t=Math.min(8,Math.max(1,+document.getElementById('t').value||1));
+ S.thumn=(h-1)*8+t;S.time=document.getElementById('tm').value||'06:00';S.ws=T();save();render()};
+const rs=()=>{if(confirm('مسح كل البيانات؟')){localStorage.removeItem(K);location.reload()}};
+async function nf(){const m=document.getElementById('nm');if(!('Notification'in window)){m.textContent='المتصفح لا يدعم التذكيرات.';return}
+ m.textContent=(await Notification.requestPermission())==='granted'?'تم تفعيل التذكيرات.':'لم يتم السماح بالتذكيرات.'}
+async function chk(){if(!('Notification'in window)||Notification.permission!=='granted'||S.rec[T()]||S.nt===T())return;
+ const n=new Date(),hm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+ if(hm>=S.time){S.nt=T();save();const r=await navigator.serviceWorker?.ready;
+  const o={body:`الثمن ${tn(S.thumn)} · الحزب ${hz(S.thumn)}`,icon:'icon.svg'};r?r.showNotification('حان وقت وِردك',o):new Notification('حان وقت وِردك',o)}}
+render();chk();setInterval(chk,6e4);
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
